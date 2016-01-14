@@ -46,7 +46,7 @@ const char *hv_strerror(int err)
  * Encoder
  ******************************************************************************/
 
-#define HV_MAX_SIZE (3 * 1024 * 1024 * 1024) /* Be conservative. */
+#define HV_MAX_SIZE (3UL * 1024 * 1024 * 1024) /* Be conservative. */
 
 #define HV_DEF_GROW(NAME)                                                      \
 static int hv_enc_grow_##NAME(struct halva_enc *enc, size_t incr)              \
