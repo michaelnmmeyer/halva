@@ -33,7 +33,7 @@ Allocates a new lexicon encoder and returns it.
 
 `encoder:add(word)`  
 Adds a new word to the lexicon. Words must be added in lexicographical order.
-The length of a word must be > 0 and < `halva.MAX_WORD_LEN`.
+The length of a word must be > 0 and <= `halva.MAX_WORD_LEN`.
 
 `encoder:dump(path)`  
 Dumps a lexicon to a file. Returns `true` on success, `nil` plus an error
@@ -67,10 +67,9 @@ Returns the number of words in a lexicon.
 Returns an iterator over a lexicon. If `from` is not given or `nil`, the
 iterator will be initialized to iterate over the whole lexicon. If `from` is a
 string, iteration will start at this string if it is present in the lexicon,
-otherwise just after it. If `from` is a number and the automaton is numbered,
-iteration will start at the corresponding position in the lexicon. Negative
-positions are valid: -1 corresponds to the last word in the lexicon, -2 to the
-penultimate, and so on.  
+otherwise just after it. If `from` is a number, iteration will start at the
+corresponding position in the lexicon. Negative positions are valid: -1
+corresponds to the last word in the lexicon, -2 to the penultimate, and so on.  
 Examples:
 
     -- Iterate over all words.
