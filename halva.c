@@ -46,7 +46,7 @@ const char *hv_strerror(int err)
  * Encoder
  ******************************************************************************/
 
-#define HV_MAX_SIZE (3 * 1024 * 1024)  /* Be conservative. */
+#define HV_MAX_SIZE (3 * 1024 * 1024 * 1024) /* Be conservative. */
 
 #define HV_DEF_GROW(NAME)                                                      \
 static int hv_enc_grow_##NAME(struct halva_enc *enc, size_t incr)              \
@@ -133,7 +133,7 @@ int hv_enc_dump(struct halva_enc *enc,
                 void *arg)
 {
    if (!enc->finished) {
-      for (uint32_t i = 0; i < enc->header_size; i++)
+      for (size_t i = 0; i < enc->header_size; i++)
          enc->header[i] = htonl(enc->header[i]);
       enc->finished = true;
    }
