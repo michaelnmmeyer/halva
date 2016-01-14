@@ -1,0 +1,14 @@
+Usage: %s <command> <lexicon_path>
+Manage a front-compressed lexicon.
+
+Commands:
+   create <lexicon_path>
+      Create a front-compressed lexicon.
+      Words to encode are read from the standard input. They must be sorted
+      byte-wise. There must be one word per line.
+   dump <lexicon_path>
+      Display the contents of a front-compressed lexicon on the standard
+      output, one word per line. 
+
+Option:
+   -h | --help     Display this message
