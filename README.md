@@ -8,8 +8,12 @@ This is a set-like data structure that uses
 [front-coding](https://en.wikipedia.org/wiki/Incremental_encoding) to compress a
 lexicon. Such a data structure supports the same operations as an ordered set
 (checking for the presence of a word, iterating over the lexicon in
-lexicographical order), but is much smaller. The following table shows the size
-of a few dictionaries before and after compression:
+lexicographical order), but is much smaller.
+
+The following table shows the size of a few dictionaries before and after
+compression. The `decompressed` column gives the size of the dictionary as
+encoded in a text file, one word per line. The `compressed` column gives the
+size of the corresponding compressed lexicon in memory.
 
     dictionary      language    decompressed  compressed
     ---             ---         ---           ---
@@ -25,6 +29,10 @@ position in the lexicon. This allows finding a word given its ordinal, and,
 conversely, finding the ordinal corresponding to a word, as in a sorted array.
 
 Finally, strings containing embedded zeroes are supported.
+
+If you're interested in these matters, you might want to check my [minimal
+acyclic finite-state automaton library](https://github.com/michaelnmmeyer/mini),
+which implements functionalities similar to this one.
 
 ## Building
 
