@@ -1,6 +1,6 @@
 # halva
 
-Front-compressed lexicon.
+Front-compressed lexicon data structure.
 
 ## Purpose
 
