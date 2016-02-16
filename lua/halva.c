@@ -48,7 +48,7 @@ static int hv_lua_enc_add(lua_State *lua)
    struct halva_enc *enc = luaL_checkudata(lua, 1, HV_ENC_MT);
    size_t len;
    const void *word = luaL_checklstring(lua, 2, &len);
-   
+
    int ret = hv_enc_add(enc, word, len);
    if (ret) {
       /* Programming error. */
@@ -69,7 +69,7 @@ static int hv_lua_enc_dump(lua_State *lua)
       lua_pushstring(lua, strerror(errno));
       return 2;
    }
-   
+
    int ret = hv_enc_dump_file(enc, fp);
    switch (ret) {
    case HV_OK:
@@ -124,7 +124,7 @@ static int hv_lua_load(lua_State *lua)
       lua_pushstring(lua, strerror(errno));
       return 2;
    }
-   
+
    int ret = hv_load_file(&hv->hv, fp);
    fclose(fp);
    if (ret) {
@@ -169,7 +169,7 @@ static int hv_lua_extract(lua_State *lua)
 {
    const struct halva *hv = check_hv(lua);
    uint32_t pos = hv_abs_index(lua, 2, hv);
-   
+
    char word[HV_MAX_WORD_LEN + 1];
    size_t len = hv_extract(hv, pos, word);
    if (len)
@@ -184,7 +184,7 @@ static int hv_lua_locate(lua_State *lua)
    const struct halva *hv = check_hv(lua);
    size_t len;
    const char *word = luaL_checklstring(lua, 2, &len);
-   
+
    uint32_t pos = hv_locate(hv, word, len);
    if (pos)
       lua_pushnumber(lua, pos);
@@ -217,10 +217,10 @@ static struct halva_iter *hv_lua_iter_new(lua_State *lua, struct halva **hvp)
       hv->lua_ref = luaL_ref(lua, LUA_REGISTRYINDEX);
    }
    it->hv = hv;
-   
+
    luaL_getmetatable(lua, HV_ITER_MT);
    lua_setmetatable(lua, -2);
-   
+
    *hvp = hv->hv;
    return &it->it;
 }
@@ -231,7 +231,7 @@ static int hv_lua_iter_init(lua_State *lua)
 
    struct halva *hv;
    struct halva_iter *it = hv_lua_iter_new(lua, &hv);
-   
+
    uint32_t pos;
    switch (lua_type(lua, 2)) {
    case LUA_TNUMBER: {
@@ -254,7 +254,7 @@ static int hv_lua_iter_init(lua_State *lua)
       return luaL_error(lua, "bad value at #2 (expect string, number, or nil, have %s)", type);
    }
    }
-   
+
    lua_pushcclosure(lua, hv_lua_iter_next, 1);
    if (pos)
       lua_pushnumber(lua, pos);
@@ -299,7 +299,7 @@ int luaopen_halva(lua_State *lua)
    lua_pushvalue(lua, -1);
    lua_setfield(lua, -2, "__index");
    luaL_setfuncs(lua, enc_fns, 0);
-   
+
    const luaL_Reg fns[] = {
       {"__gc", hv_lua_free},
       {"__len", hv_lua_size},
@@ -313,12 +313,12 @@ int luaopen_halva(lua_State *lua)
    lua_pushvalue(lua, -1);
    lua_setfield(lua, -2, "__index");
    luaL_setfuncs(lua, fns, 0);
-   
+
    luaL_newmetatable(lua, HV_ITER_MT);
    lua_pushliteral(lua, "__gc");
    lua_pushcfunction(lua, hv_lua_iter_fini);
    lua_settable(lua, -3);
-   
+
    const luaL_Reg lib[] = {
       {"encoder", hv_lua_enc_new},
       {"load", hv_lua_load},
@@ -327,9 +327,9 @@ int luaopen_halva(lua_State *lua)
    luaL_newlib(lua, lib);
    lua_pushnumber(lua, HV_MAX_WORD_LEN);
    lua_setfield(lua, -2, "MAX_WORD_LEN");
-   
+
    lua_pushstring(lua, HV_VERSION);
    lua_setfield(lua, -2, "VERSION");
-   
+
    return 1;
 }

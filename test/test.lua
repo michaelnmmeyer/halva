@@ -48,17 +48,17 @@ local function test_functions(ref_words, num_words)
    local path = os.tmpname()
    encode_hv(path, get_iter(ref_words))
    local words = assert(halva.load(path))
-   
+
    -- Main functions.
    for i = 1, num_words do
       local word = assert(ref_words[i])
       assert(words:locate(word) == i)
       assert(words:extract(i) == word)
    end
-   
+
    assert(not words:locate("zefonaodnaozndozfneozoz"))
    assert(not words:extract(num_words + 1))
-   
+
    -- Size (__len metamethod)
    assert(words:size() == num_words and #words == num_words)
 
@@ -123,11 +123,11 @@ function test.empty_lexicon()
 
    assert(not words:locate("foo"))
    assert(not words:locate(""))
-   
+
    assert(not words:iter()())
    assert(not words:iter("")())
    assert(not words:iter(1)())
-   
+
    os.remove(path)
 end
 
@@ -140,26 +140,26 @@ function test.binary_strings()
    assert(words:locate("\0\1") == 2)
    assert(words:extract(1) == "\0")
    assert(words:extract(2) == "\0\1")
-   
+
    local itor = words:iter()
    assert(itor() == "\0")
    assert(itor() == "\0\1")
-   
+
    itor = words:iter("\0\1")
    assert(itor() == "\0\1")
    assert(not itor())
-   
+
    os.remove(path)
 end
 
 -- Ensure a lexicon object is not collected while there are remaining iterators.
 -- This must be run under valgrind to be useful at all.
 function test.lexicon_collection()
-   local path = os.tmpname() 
+   local path = os.tmpname()
    encode_hv(path, io.lines("words.txt"))
    local lex = halva.load(path)
    os.remove(path)
-   
+
    local itors = {}
    for i = 1, math.random(20) do
       itors[i] = lex:iter()

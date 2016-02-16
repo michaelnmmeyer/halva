@@ -8,7 +8,7 @@ Commands:
       byte-wise. There must be one word per line.
    dump <lexicon_path>
       Display the contents of a front-compressed lexicon on the standard
-      output, one word per line. 
+      output, one word per line.
 
 Option:
    -h | --help     Display this message

@@ -50,7 +50,7 @@ static void create(int argc, char **argv)
       die("cannot dump lexicon: %s", hv_strerror(ret));
    if (fclose(fp))
       die("IO error:");
-   
+
    hv_enc_fini(&enc);
 }
 
@@ -64,7 +64,7 @@ static void dump(int argc, char **argv)
    FILE *fp = fopen(path, "rb");
    if (!fp)
       die("cannot open '%s':", path);
-   
+
    struct halva *hv;
    int ret = hv_load_file(&hv, fp);
    fclose(fp);
@@ -93,6 +93,6 @@ int main(int argc, char **argv)
    const char *help =
       #include "halva.ih"
    ;
-   
+
    parse_command(cmds, help, argc, argv);
 }

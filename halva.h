@@ -1,7 +1,7 @@
 #ifndef HALVA_H
 #define HALVA_H
 
-#define HV_VERSION "0.1"
+#define HV_VERSION "0.2"
 
 #include <stddef.h>
 #include <stdint.h>

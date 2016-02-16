@@ -31,7 +31,7 @@ int main(void)
    struct halva *lexicon;
    hv_load_file(&lexicon, fp);
    fclose(fp);
-   
+
    /* Print all words >= "greet". */
    struct halva_iter itor;
    hv_iter_inits(&itor, lexicon, "greet", sizeof "greet" - 1);

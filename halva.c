@@ -82,13 +82,13 @@ int hv_enc_add(struct halva_enc *enc, const void *word, size_t len)
 
    if (enc->header_size * sizeof *enc->header + enc->body_size > HV_MAX_SIZE)
       return HV_E2BIG;
-   
+
    if (len == 0 || len > HV_MAX_WORD_LEN)
       return HV_EWORD;
 
    if (lmemcmp(enc->prev, enc->prev_len, word, len) >= 0)
       return HV_EORDER;
-   
+
    if (!(enc->num_words & (HV_BLOCKING_FACTOR - 1))) {
       if (hv_enc_grow_header(enc, 1) || hv_enc_grow_body(enc, 1 + len))
          return HV_ENOMEM;
@@ -124,7 +124,7 @@ int hv_enc_add(struct halva_enc *enc, const void *word, size_t len)
    memcpy(enc->prev, word, len);
    enc->prev_len = len;
    enc->num_words++;
-   
+
    return HV_OK;
 }
 
@@ -196,7 +196,7 @@ struct halva {
 static uint32_t hv_limit(const struct halva *hv, uint32_t bkt)
 {
    assert(bkt < hv->num_bkts);
-   
+
    if (bkt + 1 == hv->num_bkts) {
       uint32_t high = hv->num_words & (HV_BLOCKING_FACTOR - 1);
       if (high)
@@ -220,7 +220,7 @@ int hv_load(struct halva **hvp, int (*read)(void *arg, void *buf, size_t size),
       return HV_EMAGIC;
    if (header[1] != hv_version)
       return HV_EVERSION;
-   
+
    uint32_t num_words = header[2];
    uint32_t body_size = header[3];
    uint32_t num_bkts = HV_DIV_ROUNDUP(num_words, HV_BLOCKING_FACTOR);
@@ -233,13 +233,13 @@ int hv_load(struct halva **hvp, int (*read)(void *arg, void *buf, size_t size),
       free(hv);
       return HV_EIO;
    }
-   
+
    hv->num_words = num_words;
    hv->num_bkts = num_bkts;
    for (uint32_t i = 0; i < num_bkts; i++)
       hv->header[i] = ntohl(hv->header[i]);
    hv->body = (const uint8_t *)(&hv->header[hv->num_bkts]);
-   
+
    *hvp = hv;
    return HV_OK;
 }
@@ -253,11 +253,7 @@ static int hv_read(void *fp, void *buf, size_t size)
 
 int hv_load_file(struct halva **hv, FILE *fp)
 {
-   int ret = hv_load(hv, hv_read, fp);
-   if (ret)
-      return ret;
-   
-   return ferror(fp) ? HV_EIO : HV_OK;
+   return hv_load(hv, hv_read, fp);
 }
 
 size_t hv_size(const struct halva *hv)
@@ -269,7 +265,7 @@ static uint32_t hv_find_bkt(const struct halva *hv,
                             const uint8_t *term1, size_t len1)
 {
    uint32_t low = 0, high = hv->num_bkts;
-   
+
    while (low < high) {
       uint32_t mid = (low + high) >> 1;
       const uint8_t *term2 = hv->body + hv->header[mid];
@@ -288,17 +284,17 @@ uint32_t hv_locate(const struct halva *hv, const void *term, size_t len1)
    uint32_t bkt = hv_find_bkt(hv, term1, len1);
    if (!bkt)
       return 0;
-   
+
    const uint8_t *term2 = hv->body + hv->header[--bkt];
    size_t len2 = *term2++;
-   
+
    if (!lmemcmp(term1, len1, term2, len2))
       return bkt * HV_BLOCKING_FACTOR + 1;
-   
+
    uint8_t term2b[HV_MAX_WORD_LEN + 1];
    memcpy(term2b, term2, len2);
    term2 += len2;
-   
+
    uint32_t high = hv_limit(hv, bkt);
    for (uint32_t pos = 1; pos < high; pos++) {
       size_t pref_len = *term2 & HV_NIBBLE_SIZE;
@@ -306,7 +302,7 @@ uint32_t hv_locate(const struct halva *hv, const void *term, size_t len1)
       if (!suff_len)
          suff_len = *term2++;
       memcpy(&term2b[pref_len], term2, suff_len);
-      
+
       int cmp = lmemcmp(term2b, pref_len + suff_len, term1, len1);
       if (cmp < 0)
          term2 += suff_len;
@@ -324,15 +320,15 @@ size_t hv_extract(const struct halva *hv, uint32_t pos, void *buf)
       *(uint8_t *)buf = '\0';
       return 0;
    }
-   
+
    pos--;
    uint32_t bkt = pos / HV_BLOCKING_FACTOR;
    uint32_t rest = pos & (HV_BLOCKING_FACTOR - 1);
-   
+
    const uint8_t *target = hv->body + hv->header[bkt];
    size_t pref_len = *target++;
    size_t suff_len = 0;
-   
+
    memcpy(buf, target, pref_len);
    if (rest) {
       target += pref_len;
@@ -345,7 +341,7 @@ size_t hv_extract(const struct halva *hv, uint32_t pos, void *buf)
          target += suff_len;
       } while (--rest);
    }
-   
+
    ((uint8_t *)buf)[pref_len += suff_len] = '\0';
    return pref_len;
 }
@@ -372,26 +368,26 @@ uint32_t hv_iter_inits(struct halva_iter *it, const struct halva *hv,
                        const void *term, size_t len1)
 {
    const uint8_t *term1 = term;
-   
+
    uint32_t bkt = hv_find_bkt(hv, term1, len1);
    if (!bkt)
       return hv_iter_init(it, hv);
-   
+
    it->hv = hv;
-   
+
    const uint8_t *cur = hv->body + hv->header[--bkt];
    const uint8_t *term2 = cur;
    size_t pref_len, suff_len = *term2++;
-   
+
    if (!lmemcmp(term1, len1, term2, suff_len)) {
       it->pos = bkt * HV_BLOCKING_FACTOR;
       it->p = cur;
       return it->pos + 1;
    }
-   
+
    memcpy(it->word, term2, suff_len);
    term2 += suff_len;
-   
+
    uint32_t high = hv_limit(hv, bkt);
    for (uint32_t pos = 1; pos < high; pos++) {
       cur = term2;
@@ -408,7 +404,7 @@ uint32_t hv_iter_inits(struct halva_iter *it, const struct halva *hv,
       it->p = cur;
       return it->pos + 1;
    }
-   
+
    it->pos = (bkt + 1) * HV_BLOCKING_FACTOR;
    it->p = term2;
    if (it->pos > hv->num_words)
@@ -420,17 +416,17 @@ uint32_t hv_iter_initn(struct halva_iter *it, const struct halva *hv,
                        uint32_t pos)
 {
    it->hv = hv;
-   
+
    if (pos == 0 || pos > hv->num_words) {
       it->pos = hv->num_words;
       it->p = NULL;
       return 0;
    }
-   
+
    pos--;
    uint32_t bkt = pos / HV_BLOCKING_FACTOR;
    uint32_t rest = pos & (HV_BLOCKING_FACTOR - 1);
-   
+
    if (!rest) {
       it->pos = pos;
       it->p = hv->body + hv->header[bkt];
@@ -460,7 +456,7 @@ const char *hv_iter_next(struct halva_iter *it, size_t *len)
          *len = 0;
       return NULL;
    }
-   
+
    if (!(it->pos & (HV_BLOCKING_FACTOR - 1))) {
       size_t pref_len = *it->p++;
       memcpy(it->word, it->p, pref_len);
@@ -480,7 +476,7 @@ const char *hv_iter_next(struct halva_iter *it, size_t *len)
          *len = pref_len;
       it->p += suff_len;
    }
-   
+
    it->pos++;
    return it->word;
 }
